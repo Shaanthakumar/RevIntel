@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: revintel-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://revintel_user:revintel_pass@postgres:5432/revintel_db
+      - ENVIRONMENT=production
+    depends_on:
+      - postgres
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: revintel-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: always
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: revintel-postgres
+    environment:
+      - POSTGRES_USER=revintel_user
+      - POSTGRES_PASSWORD=revintel_pass
+      - POSTGRES_DB=revintel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
